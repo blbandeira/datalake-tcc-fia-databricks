@@ -95,11 +95,11 @@ if __name__ == '__main__':
         .getOrCreate()
        )
         
-        Extract = IngestCoinlayerApi(
-            spark = spark,
-            ACCESS_KEY = ACCESS_KEY,
-            date = date,
-            load_path = load_path
-        )
+    Extract = IngestCoinlayerApi(
+      spark = spark,
+      ACCESS_KEY = ACCESS_KEY,
+      date = date,
+      load_path = load_path
+    )
 
-        main(Extract)
+    main(Extract)
