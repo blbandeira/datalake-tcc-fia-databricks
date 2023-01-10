@@ -84,9 +84,9 @@ def main(Extract:IngestCoinlayerApi):
     
 
 if __name__ == '__main__':
-    ACCESS_KEY = dbuitls.widgets.get('ACCESS_KEY')
-    date = dbuitls.widgets.get('date')
-    load_path = dbuitls.widgets.get('load_path')
+    ACCESS_KEY = dbutils.widgets.get('ACCESS_KEY')
+    date = dbutils.widgets.get('date')
+    load_path = dbutils.widgets.get('load_path')
     
     spark = (
        SparkSession
