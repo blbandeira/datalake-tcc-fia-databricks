@@ -46,7 +46,7 @@ class EtlExchangeRates:
         )
     
     def repair_table(self):
-        self.spark.sql(""" MSCK REAPAIR TABLE refined.crypto_exchange_rates_daily_incremental""")
+        self.spark.sql(""" MSCK REPAIR TABLE refined.crypto_exchange_rates_daily_incremental""")
 
 def main(ETL:EtlExchangeRates):
     df = ETL.extract_raw_request_api_coinlayer_by_date()
