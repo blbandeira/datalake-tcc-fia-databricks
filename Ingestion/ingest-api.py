@@ -86,7 +86,7 @@ def main(Extract:IngestCoinlayerApi):
 if __name__ == '__main__':
     ACCESS_KEY = dbutils.widgets.get('ACCESS_KEY')
     date = dbutils.widgets.get('date')
-    load_path = dbuitls.widgets.get('load_path')
+    load_path = dbutils.widgets.get('load_path')
     
     spark = (
        SparkSession
@@ -95,11 +95,11 @@ if __name__ == '__main__':
         .getOrCreate()
        )
         
-        Extract = IngestCoinlayerApi(
-            spark = spark,
-            ACCESS_KEY = ACCESS_KEY,
-            date = date,
-            load_path = load_path
-        )
+    Extract = IngestCoinlayerApi(
+      spark = spark,
+      ACCESS_KEY = ACCESS_KEY,
+      date = date,
+      load_path = load_path
+    )
 
-        main(Extract)
+    main(Extract)
