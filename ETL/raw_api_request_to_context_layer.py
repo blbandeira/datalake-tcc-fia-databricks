@@ -52,6 +52,7 @@ def main(ETL:EtlExchangeRates):
     df = ETL.extract_raw_request_api_coinlayer_by_date()
     df_transformed = ETL.transform_table(df)
     ETL.load_df(df_transformed)
+    ETL.repair_table()
 
 if __name__ == '__main__':
     date = dbutils.widgets.get('date')
