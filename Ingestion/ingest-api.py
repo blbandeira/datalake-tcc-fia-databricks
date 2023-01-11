@@ -2,7 +2,7 @@
 import requests
 import pandas as pd
 import json
-from pyspark.sql.types import StructType,StructField, StringType, DoubleType, BooleanType, TimestampType, ArrayType 
+from pyspark.sql.types import StructType,StructField, StringType, DoubleType, TimestampType, MapType 
 import pyspark.sql.functions as fn
 from pyspark.sql import SparkSession
 import datetime
@@ -27,38 +27,42 @@ class IngestCoinlayerApi:
             f.write(json_object)
     
     def read_json_spark(self):
-        df_pd = pd.read_json(f'/dbfs/mnt/datalake/landing/coinlayer_api_results/{self.date}_result.json')
-        df_pd = (
-            df_pd
-            .reset_index()
-            .rename(columns={'index': 'name'})
-        )
-
-        df_pd['rates'] = df_pd['rates'].astype(str)
-        
         schema = StructType([
-            StructField('rate', DoubleType() , True),
-            StructField('high', DoubleType() , True),
-            StructField('low', DoubleType() , True),
-            StructField('vol', DoubleType() , True),
-            StructField('cap', DoubleType() , True),
-            StructField('sup', DoubleType() , True),
-            StructField('change', DoubleType() , True),
-            StructField('change_pct', DoubleType() , True)
-    ])
-        
-        df_spark = self.spark.createDataFrame(df_pd)
-
+            StructField('success', StringType(), True),
+            StructField('terms', StringType(), True),
+            StructField('privacy', StringType(), True),
+            StructField('timestamp', TimestampType(), True),
+            StructField('target', StringType(), True),
+            StructField('rates', MapType(StringType(), StructType([
+                    StructField('rate', DoubleType() , True),
+                    StructField('high', DoubleType() , True),
+                    StructField('low', DoubleType() , True),
+                    StructField('vol', DoubleType() , True),
+                    StructField('cap', DoubleType() , True),
+                    StructField('sup', DoubleType() , True),
+                    StructField('change', DoubleType() , True),
+                    StructField('change_pct', DoubleType() , True)
+                ])), True)
+        ])  
+      
         return (
-            df_spark.withColumn('rates', fn.from_json('rates', schema=schema)
-                     )
+            self
+            .spark
+            .read
+            .option('multiline', 'true')
+            .schema(schema)
+            .format('json')
+            .load(f'/mnt/datalake/landing/coinlayer_api_results/{self.date}_result.json')
+            .selectExpr('timestamp', 'target', 'to_date(timestamp) as date', 'explode(rates)')
+            .withColumnRenamed('key', 'name')
+            .withColumnRenamed('value', 'rates')
             .select('name'
                     , 'timestamp'
                     , 'target'
                     , 'date'
                     , 'rates'
                    )
-            .withColumn('DT_PARTITION', fn.to_date('date'))
+            .withColumn('DT_PARTITION', fn.col('date'))
             )
         
     def load_df(self, df):
