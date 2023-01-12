@@ -53,7 +53,7 @@ class IngestCoinlayerApi:
             .schema(schema)
             .format('json')
             .load(f'/mnt/datalake/landing/coinlayer_api_results/{self.date}_result.json')
-            .selectExpr('timestamp', 'target', 'to_date(timestamp) as date', 'explode(rates)')
+            .selectExpr('timestamp', 'target', 'timestamp as date', 'explode(rates)')
             .withColumnRenamed('key', 'name')
             .withColumnRenamed('value', 'rates')
             .select('name'
@@ -62,7 +62,7 @@ class IngestCoinlayerApi:
                     , 'date'
                     , 'rates'
                    )
-            .withColumn('DT_PARTITION', fn.col('date'))
+            .withColumn('DT_PARTITION', fn.to_date(fn.col('date')))
             )
         
     def load_df(self, df):
@@ -83,14 +83,16 @@ def main(Extract:IngestCoinlayerApi):
     result = Extract.get_request_from_api()
     Extract.save_json_on_landing_zone(result)
     df = Extract.read_json_spark()
-    Extract.load_df(df)
-    Extract.repair_table()
+    df.printSchema()
+    df.display()
+    #Extract.load_df(df)
+    #Extract.repair_table()
     
 
 if __name__ == '__main__':
     ACCESS_KEY = dbutils.widgets.get('ACCESS_KEY')
     date = dbutils.widgets.get('date')
-    load_path = dbutils.widgets.get('load_path')
+    load_path =  dbutils.widgets.get('load_path')
     
     spark = (
        SparkSession
