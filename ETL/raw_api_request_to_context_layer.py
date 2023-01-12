@@ -51,6 +51,7 @@ class EtlExchangeRates:
 def main(ETL:EtlExchangeRates):
     df = ETL.extract_raw_request_api_coinlayer_by_date()
     df_transformed = ETL.transform_table(df)
+    df.display()
     ETL.load_df(df_transformed)
     ETL.repair_table()
 
