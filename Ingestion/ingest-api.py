@@ -83,10 +83,8 @@ def main(Extract:IngestCoinlayerApi):
     result = Extract.get_request_from_api()
     Extract.save_json_on_landing_zone(result)
     df = Extract.read_json_spark()
-    df.printSchema()
-    df.display()
-    #Extract.load_df(df)
-    #Extract.repair_table()
+    Extract.load_df(df)
+    Extract.repair_table()
     
 
 if __name__ == '__main__':
